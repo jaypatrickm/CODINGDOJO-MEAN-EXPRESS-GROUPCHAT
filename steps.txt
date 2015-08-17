@@ -1,0 +1,11 @@
+1). setup server and json packages (express,socket,ejs,bodyparse)
+2). create route for "/" to show an index from views that will have a prompt for the users name
+3). if user has not filled out name before, have javascript prompt user for their name
+4). the user can submit their name, and it will emit a broadcast to the chatroom they have entered the room
+5). users in chat will have a listener for user enters
+6). the chatroom will update in real time
+7). chatroom should show all chats even ones before user has entered, may have to store all chat into a session or variable
+8). this variable should be listened for when the user connects into the chatroom
+9). when user enters name, they will then given access to the chatroom
+10). they will send messages that will have full broadcast along with their name and show in the converstation board
+11). conversation board will have listeners for full broadcast that is appended to the board and saved in a log for new users

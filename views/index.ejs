@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Conversation Board</title>
+
+	<!-- <link rel="stylesheet" href="/stylesheets/style.css" /> -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			// this triggers the connection even in our server!
+			var socket = io.connect();
+
+			// we'll write all the socket stuff after the above line!
+			$('#chat-container').hide();
+			$('#chat-login form').submit(function() {
+				console.log($('#chat-login form input[name="name"]').val());
+				socket.emit("login_name", {
+					name: $('#chat-login form input[name="name"]').val()
+				});
+				$('#chat-login').css('display', 'none');
+				$('#chat-container').show();
+				return false;
+			});
+
+
+			socket.on('user_entered_chat', function (data) {
+				$('ul.chat-room').append('<li>' + data.response + '</li>');
+				socket.emit('update_log', { msg : '<li>' + data.response + '</li>' })
+			});
+			socket.on('chat_log', function(data) {
+				$('ul.chat-room').html(data.log);
+			})
+			var user_id = '';
+			var user_name = '';
+			socket.on('user_id', function(data) {
+				user_id = data.user_id;
+				user_name = data.name;
+			})
+			$('#chat-container form').submit(function() {
+				socket.emit("send_chat_message", {
+					name: user_name,
+					id: user_id,
+					msg: $('#chat-container form input[name="message"]').val()
+				})
+				return false;
+			});
+			socket.on('my_full_broadcast_event', function(data) {
+				$('ul.chat-room').append(data.msg);
+			})
+		})
+	</script>
+	<style>
+		ul.chat-room {
+			border: 1px solid #000;
+			height: 600px;
+		}
+		div#chat-login {
+			margin-top: 200px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div id="chat-login" class="row">
+			<div class="col-sm-4 col-sm-offset-4">
+				<form action="#" method="post">
+					<div class="form-group">
+						<label for="name">What is your name?</label>
+						<input type="text" name="name" class="form-control" placeholder="Name"> 
+						<button type="submit" class="btn btn-default">Submit</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div id="chat-container" class="row">
+			<div class="col-sm-12">
+				<h2>Conversation Board</h2>
+				<ul class="chat-room">
+					<p><span class="name">Michael: </span> This app is so amazing....</p>
+					<p><span class="name">Dexter: </span> No Michael... You need more pictures.</p>
+					<p><span class="name">John </span> SocketIO is so cool!</p>
+					<p><span class="name">Eylem: </span> Javascript rocks.</p>
+				</ul>
+				<form action="#" method="post">
+					<div class="form-group">
+						<input type="text" name="message" class="form-control" placeholder="enter your message here"> 
+						<button type="submit" class="btn btn-default">Send</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
